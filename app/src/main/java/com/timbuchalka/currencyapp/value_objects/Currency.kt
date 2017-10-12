@@ -6,9 +6,9 @@ import android.os.Parcelable
 /**
  * Created by HomePC on 12/10/2017.
  */
-data class Currency (private var rate: Double, private var date: String,
-                     private var base: String, private var name: String,
-                     private var id: Long = 0L) : Parcelable {
+data class Currency(var rate: Double, var date: String,
+                    var base: String, var name: String,
+                    var id: Long = 0L) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readDouble(),

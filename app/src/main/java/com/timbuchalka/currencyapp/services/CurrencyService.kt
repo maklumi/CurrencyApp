@@ -50,7 +50,13 @@ class CurrencyService(name: String = TAG) : IntentService(name) {
                     bundle.putString(Intent.EXTRA_TEXT, e.toString())
                     receiverForSending.send(Constants.STATUS_ERROR, bundle)
                 }
+            }else {
+                LogUtils.log(TAG, "No internet connection")
             }
         }
+        LogUtils.log(TAG, "Currency Service has stopped")
+        stopSelf()
     }
+
+
 }

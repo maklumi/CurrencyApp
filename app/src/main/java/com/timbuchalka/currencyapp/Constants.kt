@@ -56,6 +56,7 @@ object Constants {
 
     // Constant for notification
     val NOTIFICATION_ID = 100
+    val REQUEST_ID_NUM = 101
 
     // Constants for SharedPreferences
     val CURRENCY_PREFERENCES = "CURRENCY_PREFERENCES"

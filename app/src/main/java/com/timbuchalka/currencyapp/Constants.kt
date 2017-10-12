@@ -64,5 +64,9 @@ object Constants {
     val SERVICE_REPETITION = "SERVICE_REPETITION"
     val NUM_DOWNLOADS = "NUM_DOWNLOADS"
 
+    // for web connection
+    val CONNECTION_TIMEOUT = 10000
+    val READ_TIMEOUT = 10000
+
 
 }

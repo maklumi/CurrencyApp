@@ -9,7 +9,7 @@ object Constants {
     // for parsing currency from json response
     val BASE = "base"
     val DATE = "date"
-    val RAYES = "rates"
+    val RATES = "rates"
 
     // for currency service and receiver
     val URL = "url"

@@ -1,5 +1,7 @@
 package com.timbuchalka.currencyapp.utils
 
+import android.content.Context
+import android.net.ConnectivityManager
 import com.timbuchalka.currencyapp.Constants
 import org.json.JSONException
 import org.json.JSONObject
@@ -35,10 +37,11 @@ object WebServiceUtils {
             }
 
             val inputStream = BufferedInputStream(urlConnection.inputStream)
-            return JSONObject(inputStream.toString())
-        } catch ( e: MalformedURLException) {
+            val inputAsString = inputStream.bufferedReader().use { it.readText() }
+            return JSONObject(inputAsString)
+        } catch (e: MalformedURLException) {
             LogUtils.log(TAG, e.message.orEmpty())
-        } catch (e: SocketTimeoutException){
+        } catch (e: SocketTimeoutException) {
             LogUtils.log(TAG, e.message.orEmpty())
         } catch (e: IOException) {
             LogUtils.log(TAG, e.message.orEmpty())
@@ -49,6 +52,13 @@ object WebServiceUtils {
         }
 
         return JSONObject() // or null
+    }
+
+    fun hasInternetConnection(ctx: Context): Boolean {
+        val connectivityManager = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as  ConnectivityManager
+        return connectivityManager.activeNetworkInfo != null &&
+                connectivityManager.activeNetworkInfo.isConnected
+
     }
 
 }

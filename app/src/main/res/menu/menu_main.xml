@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action_show_fab"
+        android:icon="@mipmap/ic_remove"
+        android:title="@string/fab_visibility"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/action_show_log"
         android:icon="@mipmap/ic_keyboard_hide"

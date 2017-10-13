@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
     }
 
     private var isLogVisible = true
+    private var isFABVisible = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,9 +50,14 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
         initSpinner()
         initCurrencyList()
         initCurrencies()
+        initLineChart()
         resetDownloads()
         retrieveCurrencyExchangeRate()
         showLogs()
+    }
+
+    private fun initLineChart() {
+
     }
 
     private fun showLogs() {

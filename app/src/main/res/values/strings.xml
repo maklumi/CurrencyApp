@@ -4,6 +4,10 @@
     <string name="currency_prompt">Select service frequency</string>
     <string name="log_visibility">Log Visibility</string>
     <string name="clear_logs">Clear Logs</string>
+    <string name="fab_visibility">FAB visibility</string>
+    <string name="popup_menu_currency_selection">Currency Selection</string>
+    <string name="popup_menu_clear_database">Clear Database</string>
+    <string name="popup_menu_show_graph">Show Graph</string>
 
     <string-array name="currency_time">
         <item>Repeat every minute</item>

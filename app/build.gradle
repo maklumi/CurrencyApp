@@ -36,7 +36,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    compile 'com.github.PhilJay:MPAndroidChart:v2.1.4'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     compile 'com.android.support:design:26.1.0'
     // Anko SQLite
     compile "org.jetbrains.anko:anko-sqlite:0.10.1"

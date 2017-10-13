@@ -28,7 +28,7 @@ class CurrencyTableHelper(private val adapter: CurrencyDatabaseAdapter) {
         return currencies[0].id
     }
 
-    private fun getCurrencyHistory(base: String, name: String, date: String): ArrayList<Currency> {
+    fun getCurrencyHistory(base: String, name: String, date: String): ArrayList<Currency> {
         val cursor = adapter.writableDatabase.query(
                 Constants.CURRENCY_TABLE,
                 arrayOf(Constants.KEY_ID, Constants.KEY_BASE, Constants.KEY_DATE, Constants.KEY_RATE,
@@ -41,7 +41,7 @@ class CurrencyTableHelper(private val adapter: CurrencyDatabaseAdapter) {
         return ArrayList(currencies)
     }
 
-    private fun getCurrencyHistory(base: String, name: String): ArrayList<Currency> {
+    fun getCurrencyHistory(base: String, name: String): ArrayList<Currency> {
         val cursor = adapter.writableDatabase.query(
                 Constants.CURRENCY_TABLE,
                 arrayOf(Constants.KEY_ID, Constants.KEY_BASE, Constants.KEY_DATE, Constants.KEY_RATE,

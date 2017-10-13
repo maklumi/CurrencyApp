@@ -1,6 +1,7 @@
 package com.timbuchalka.currencyapp
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
@@ -9,6 +10,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.timbuchalka.currencyapp.adapters.CurrencyAdapter
 import com.timbuchalka.currencyapp.database.CurrencyDatabaseAdapter
 import com.timbuchalka.currencyapp.database.CurrencyTableHelper
@@ -57,7 +64,85 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
     }
 
     private fun initLineChart() {
+        with(line_chart) {
+            isHighlightPerDragEnabled = true
+            isDragEnabled = true
+            setNoDataText("No Data")
+            setTouchEnabled(true)
+            setScaleEnabled(true)
+            setDrawGridBackground(false)
+            setPinchZoom(true)
+        }
 
+        val lineData = LineData()
+        lineData.setValueTextColor(Color.BLUE)
+        line_chart.data = lineData
+
+        val legend = line_chart.legend
+        legend.form = Legend.LegendForm.LINE
+        legend.textColor = ColorTemplate.getHoloBlue()
+
+        val xAxis = line_chart.xAxis
+        xAxis.textColor = Color.BLACK
+        xAxis.setDrawGridLines(false)
+        xAxis.setAvoidFirstLastClipping(true)
+
+        val yAxis = line_chart.axisLeft
+        yAxis.textColor = Color.BLACK
+        yAxis.axisMaxValue = 120f
+        yAxis.setDrawGridLines(true)
+
+        val yAxisRight = line_chart.axisRight
+        yAxisRight.isEnabled = false
+
+    }
+
+    private fun updateLineChart() {
+        // line_chart.setDescription ("Currency Exchange Rate: $baseCurrency - $targetCurrency")
+        val currencies = currencyTableHelper.getCurrencyHistory(baseCurrency, targetCurrency)
+        val lineData = line_chart.data
+        lineData.clearValues()
+        currencies.forEach {
+            addChartEntry(it.date, it.rate)
+        }
+
+    }
+
+    private fun addChartEntry(date: String, rate: Double) {
+        val lineData = line_chart.data
+        if (lineData != null) {
+            var lineDataSet = lineData.getDataSetByIndex(0)
+            if (lineDataSet == null) {
+                lineDataSet = createSet()
+                lineData.addDataSet(lineDataSet)
+            }
+
+            if (!line_chart.data.xVals.contains(date)) {
+                lineData.addDataSet(lineDataSet)
+            }
+
+            lineData.addEntry(Entry(rate.toFloat(), lineDataSet.entryCount, 0), 0)
+            line_chart.notifyDataSetChanged()
+        }
+    }
+
+    private fun createSet(): LineDataSet {
+        val lineDataSet = LineDataSet(null, "value")
+        with(lineDataSet) {
+            setDrawCubic(true)
+            cubicIntensity = 0.2f
+            axisDependency = YAxis.AxisDependency.LEFT
+            color = ColorTemplate.getHoloBlue()
+            setCircleColor(ColorTemplate.getHoloBlue())
+            lineWidth = 2f
+            circleSize = 4f
+            fillAlpha = 65
+            fillColor = ColorTemplate.getHoloBlue()
+            highLightColor = Color.CYAN
+            valueTextColor = Color.BLACK
+            valueTextSize = 10f
+        }
+        return lineDataSet
     }
 
     private fun showLogs() {
@@ -197,6 +282,8 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
                                 serviceRepetition = AlarmUtils.REPEAT.EVERY_DAY.ordinal
                                 retrieveCurrencyExchangeRate()
                             }
+                        } else {
+                            updateLineChart()
                         }
                     }
                 }

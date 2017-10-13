@@ -12,7 +12,7 @@ object LogUtils {
 
     private val stringBuffer = StringBuffer()
 
-    var logListener: LogListener = object : LogListener {
+    var logListener: LogListener? = object : LogListener {
         override fun onLogged(log: StringBuffer) {
         }
     }
@@ -44,7 +44,7 @@ object LogUtils {
         return simpleDateFormat.format(calendar.time)
     }
 
-    private fun printLog() = logListener.onLogged(stringBuffer)
+    private fun printLog() = logListener?.onLogged(stringBuffer)
 
     private fun clearLog() {
         stringBuffer.setLength(0)

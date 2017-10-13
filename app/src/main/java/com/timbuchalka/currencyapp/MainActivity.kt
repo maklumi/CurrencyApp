@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.timbuchalka.currencyapp.adapters.CurrencyAdapter
 import com.timbuchalka.currencyapp.database.CurrencyDatabaseAdapter
 import com.timbuchalka.currencyapp.database.CurrencyTableHelper
 import com.timbuchalka.currencyapp.receivers.CurrencyReceiver
@@ -14,6 +15,7 @@ import com.timbuchalka.currencyapp.utils.LogUtils
 import com.timbuchalka.currencyapp.utils.NotificationUtils
 import com.timbuchalka.currencyapp.utils.SharedPreferencesUtils
 import com.timbuchalka.currencyapp.value_objects.Currency
+import kotlinx.android.synthetic.main.activity_main.*
 import java.sql.SQLException
 
 class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
@@ -30,12 +32,50 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
         CurrencyTableHelper(currencyDatabaseAdapter)
     }
 
+    private var isLogVisible = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // init toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowCustomEnabled(false)
+
+        initSpinner()
+        initCurrencyList()
+
         resetDownloads()
         retrieveCurrencyExchangeRate()
+    }
+
+    private fun initCurrencyList() {
+        val baseCurrencyAdapter = CurrencyAdapter(this)
+        val targetCurrencyAdapter = CurrencyAdapter(this)
+
+        val baseCurrencyIndex: Int = Constants.CURRENCY_CODES.indexOf(baseCurrency)
+        val targetCurrencyIndex: Int = Constants.CURRENCY_CODES.indexOf(targetCurrency)
+
+        base_currency_list.setItemChecked(baseCurrencyIndex, true)
+        base_currency_list.setSelection(baseCurrencyIndex)
+
+        target_currency_list.setItemChecked(targetCurrencyIndex, true)
+        target_currency_list.setSelection(targetCurrencyIndex)
+    }
+
+    private fun initSpinner() {
+        with(time_frequency) {
+            isSaveEnabled = true
+            setSelection(SharedPreferencesUtils.getServiceRepetition(this@MainActivity), false)
+            post {
+                setOnItemClickListener { parent, view, position, id ->
+                    SharedPreferencesUtils.updateServiceRepetition(this@MainActivity, position)
+                    serviceRepetition = position
+                    if (position >= AlarmUtils.REPEAT.values().size) AlarmUtils.stopService()
+                    else retrieveCurrencyExchangeRate()
+                }
+            }
+        }
     }
 
     private fun retrieveCurrencyExchangeRate() {
@@ -106,5 +146,16 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
                 Toast.makeText(this, error, Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        serviceRepetition = SharedPreferencesUtils.getServiceRepetition(this)
+        retrieveCurrencyExchangeRate()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LogUtils.logListener = null
     }
 }

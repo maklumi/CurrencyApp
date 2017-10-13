@@ -34,7 +34,7 @@ object AlarmUtils {
         LogUtils.log(TAG, "Alarm has been started. $repeat")
     }
 
-    private fun stopService() {
+    fun stopService() {
         if (alarmManager != null && pendingIntent != null) {
             alarmManager?.cancel(pendingIntent)
             LogUtils.log(TAG, "Alarm has been stopped")

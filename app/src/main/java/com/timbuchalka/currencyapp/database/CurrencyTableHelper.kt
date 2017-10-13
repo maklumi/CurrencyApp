@@ -2,7 +2,10 @@ package com.timbuchalka.currencyapp.database
 
 import com.timbuchalka.currencyapp.Constants
 import com.timbuchalka.currencyapp.value_objects.Currency
-import org.jetbrains.anko.db.*
+import org.jetbrains.anko.db.MapRowParser
+import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.db.parseList
+import org.jetbrains.anko.db.parseSingle
 
 /**
  * Created by HomePC on 13/10/2017.
@@ -28,7 +31,7 @@ class CurrencyTableHelper(private val adapter: CurrencyDatabaseAdapter) {
         return currencies[0].id
     }
 
-    fun getCurrencyHistory(base: String, name: String, date: String): ArrayList<Currency> {
+    private fun getCurrencyHistory(base: String, name: String, date: String): ArrayList<Currency> {
         val cursor = adapter.writableDatabase.query(
                 Constants.CURRENCY_TABLE,
                 arrayOf(Constants.KEY_ID, Constants.KEY_BASE, Constants.KEY_DATE, Constants.KEY_RATE,
@@ -49,9 +52,9 @@ class CurrencyTableHelper(private val adapter: CurrencyDatabaseAdapter) {
                 "${Constants.KEY_BASE} = '$base'  AND ${Constants.KEY_NAME} = '$name'",
                 null, null, null, null
         )
+        val currencies = ArrayList(cursor.parseList(rowParser))
         cursor.close()
-        val rowParser = classParser<Currency>()
-        return ArrayList(cursor.parseList(rowParser))
+        return currencies
     }
 
     fun getCurrency(id: Long): Currency? {

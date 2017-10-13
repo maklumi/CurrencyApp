@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
+import android.widget.PopupMenu
 import android.widget.Toast
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.YAxis
@@ -60,6 +61,7 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
         initLineChart()
         resetDownloads()
         retrieveCurrencyExchangeRate()
+        addActionButtonListener()
         showLogs()
     }
 
@@ -323,6 +325,11 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
                 log_layout.visibility = if (isLogVisible) View.VISIBLE else View.GONE
 
             }
+            R.id.action_show_fab -> {
+                isFABVisible = !isFABVisible
+                item.setIcon(if (isFABVisible) R.mipmap.ic_remove else R.mipmap.ic_add)
+                fab.visibility = if (isFABVisible) View.VISIBLE else View.GONE
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -330,5 +337,38 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
+    }
+
+
+    private fun addActionButtonListener() {
+        fab.setOnClickListener {
+            val popupMenu = PopupMenu(this@MainActivity, fab)
+            popupMenu.menuInflater.inflate(R.menu.popup_menu, popupMenu.menu)
+
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.clear_database -> {
+                        currencyTableHelper.clearCurrencyTable()
+                        LogUtils.log(TAG, "Currency database has been cleared.")
+                        line_chart.clearValues()
+                        updateLineChart()
+                    }
+                    R.id.graph -> {
+                        currency_list_layout.visibility = View.GONE
+                        line_chart.visibility = View.VISIBLE
+                        updateLineChart()
+                    }
+                    R.id.selection -> {
+                        currency_list_layout.visibility = View.VISIBLE
+                        line_chart.visibility = View.GONE
+                    }
+                }
+                true
+            }
+
+            popupMenu.show()
+
+        }
+
     }
 }

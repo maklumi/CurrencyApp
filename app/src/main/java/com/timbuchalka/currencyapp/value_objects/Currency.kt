@@ -8,7 +8,7 @@ import android.os.Parcelable
  */
 data class Currency(var rate: Double, var date: String,
                     var base: String, var name: String,
-                    var id: Long = 0L) : Parcelable {
+                    var id: Long) : Parcelable {
 
     constructor(parcel: Parcel) : this(
             parcel.readDouble(),

@@ -16,7 +16,8 @@ object CurrencyParserHelper {
                 rateObject.optDouble(currencyName),
                 obj.optString(Constants.DATE),
                 obj.optString(Constants.BASE),
-                currencyName
+                currencyName,
+                obj.optLong(Constants.KEY_ID, 0L)
         )
 
     }

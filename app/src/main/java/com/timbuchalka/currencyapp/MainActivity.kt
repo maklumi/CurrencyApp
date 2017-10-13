@@ -5,10 +5,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import com.timbuchalka.currencyapp.database.CurrencyDatabaseAdapter
+import com.timbuchalka.currencyapp.database.CurrencyTableHelper
 import com.timbuchalka.currencyapp.receivers.CurrencyReceiver
 import com.timbuchalka.currencyapp.services.CurrencyService
 import com.timbuchalka.currencyapp.utils.LogUtils
 import com.timbuchalka.currencyapp.value_objects.Currency
+import java.sql.SQLException
 
 class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
 
@@ -16,6 +19,11 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
 
     private var baseCurrency = Constants.CURRENCY_CODES[30]
     private var targetCurrency = Constants.CURRENCY_CODES[19]
+
+    private val currencyTableHelper: CurrencyTableHelper by lazy {
+        val currencyDatabaseAdapter = CurrencyDatabaseAdapter(this)
+        CurrencyTableHelper(currencyDatabaseAdapter)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +61,18 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
                         val msg = "Currency: ${currencyParcel.base} - ${currencyParcel.name}: " +
                                 "${currencyParcel.rate}"
                         LogUtils.log(TAG, msg)
+                        val id: Long = currencyTableHelper.insertCurrency(currencyParcel)
+                        var currency = currencyParcel
+                        try {
+                            currency = currencyTableHelper.getCurrency(id)
+                        } catch (e: SQLException) {
+                            e.printStackTrace()
+                            LogUtils.log(TAG, "Currency retrieval has failed")
+                        }
+
+                        val dbMessage = "Currency (DB) ${currency.base} - ${currency.name}: ${currency.rate}"
+                        LogUtils.log(TAG, dbMessage)
+
                     }
                 }
 

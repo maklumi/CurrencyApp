@@ -2,10 +2,8 @@ package com.timbuchalka.currencyapp.database
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import com.timbuchalka.currencyapp.Constants
 import org.jetbrains.anko.db.*
-import java.sql.Date
 
 /**
  * Created by HomePC on 13/10/2017.
@@ -33,14 +31,14 @@ class CurrencyDatabaseAdapter(ctx: Context) :
                 Constants.KEY_ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
                 Constants.KEY_BASE to TEXT + NOT_NULL,
                 Constants.KEY_NAME to TEXT + NOT_NULL,
-                Constants.KEY_RATE to REAL)
-            //    Constants.KEY_DATE to Date)
+                Constants.KEY_RATE to REAL,
+                Constants.KEY_DATE to TEXT)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.dropTable(Constants.CURRENCY_TABLE, true)
     }
-}
 
-val Context.database: CurrencyDatabaseAdapter
-    get() = CurrencyDatabaseAdapter.getInstance(applicationContext)
+    val Context.database: CurrencyDatabaseAdapter
+        get() = CurrencyDatabaseAdapter.getInstance(applicationContext)
+}

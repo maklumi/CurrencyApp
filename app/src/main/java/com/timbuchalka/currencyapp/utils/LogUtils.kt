@@ -46,7 +46,7 @@ object LogUtils {
 
     private fun printLog() = logListener?.onLogged(stringBuffer)
 
-    private fun clearLog() {
+    fun clearLog() {
         stringBuffer.setLength(0)
         printLog()
     }

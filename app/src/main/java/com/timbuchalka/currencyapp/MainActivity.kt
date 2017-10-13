@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.timbuchalka.currencyapp.adapters.CurrencyAdapter
 import com.timbuchalka.currencyapp.database.CurrencyDatabaseAdapter
@@ -44,9 +46,26 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
 
         initSpinner()
         initCurrencyList()
-
+        initCurrencies()
         resetDownloads()
         retrieveCurrencyExchangeRate()
+        showLogs()
+    }
+
+    private fun showLogs() {
+        LogUtils.logListener = object : LogUtils.LogListener {
+            override fun onLogged(log: StringBuffer) {
+                runOnUiThread {
+                    log_text.text = log.toString()
+                    log_text.invalidate()
+                }
+            }
+        }
+    }
+
+    private fun initCurrencies() {
+        baseCurrency = SharedPreferencesUtils.getCurrency(this, true)
+        targetCurrency = SharedPreferencesUtils.getCurrency(this, false)
     }
 
     private fun initCurrencyList() {
@@ -56,11 +75,36 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
         val baseCurrencyIndex: Int = Constants.CURRENCY_CODES.indexOf(baseCurrency)
         val targetCurrencyIndex: Int = Constants.CURRENCY_CODES.indexOf(targetCurrency)
 
-        base_currency_list.setItemChecked(baseCurrencyIndex, true)
-        base_currency_list.setSelection(baseCurrencyIndex)
+        with(base_currency_list) {
+            adapter = baseCurrencyAdapter
+            setItemChecked(baseCurrencyIndex, true)
+            setSelection(baseCurrencyIndex)
+        }
 
-        target_currency_list.setItemChecked(targetCurrencyIndex, true)
-        target_currency_list.setSelection(targetCurrencyIndex)
+        with(target_currency_list) {
+            adapter = targetCurrencyAdapter
+            setItemChecked(targetCurrencyIndex, true)
+            setSelection(targetCurrencyIndex)
+        }
+
+        addCurrencySelectionListener()
+
+    }
+
+    private fun addCurrencySelectionListener() {
+        base_currency_list.setOnItemClickListener { parent, view, position, id ->
+            baseCurrency = Constants.CURRENCY_CODES[position]
+            LogUtils.log(TAG, "Base currency has changed to: $baseCurrency")
+            SharedPreferencesUtils.updateCurrency(this, baseCurrency, true)
+            retrieveCurrencyExchangeRate()
+        }
+        target_currency_list.setOnItemClickListener { parent, view, position, id ->
+            targetCurrency = Constants.CURRENCY_CODES[position]
+            LogUtils.log(TAG, "Target currency has changed to: $targetCurrency")
+            SharedPreferencesUtils.updateCurrency(this, targetCurrency, true)
+            retrieveCurrencyExchangeRate()
+        }
+
     }
 
     private fun initSpinner() {
@@ -79,6 +123,8 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
     }
 
     private fun retrieveCurrencyExchangeRate() {
+        if (serviceRepetition >= AlarmUtils.REPEAT.values().size) return
+
         val whichReceiver = CurrencyReceiver(Handler())
         whichReceiver.receiver = this
 
@@ -157,5 +203,24 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
     override fun onDestroy() {
         super.onDestroy()
         LogUtils.logListener = null
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_clear_logs -> {
+                LogUtils.clearLog()
+                return true
+            }
+            R.id.action_show_log -> {
+                isLogVisible = !isLogVisible
+                item.setIcon(
+                        if (isLogVisible) R.mipmap.ic_keyboard_hide
+                        else R.mipmap.ic_keyboard)
+
+                log_layout.visibility = if (isLogVisible) View.VISIBLE else View.GONE
+
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

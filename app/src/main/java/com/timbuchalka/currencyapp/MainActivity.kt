@@ -9,7 +9,10 @@ import com.timbuchalka.currencyapp.database.CurrencyDatabaseAdapter
 import com.timbuchalka.currencyapp.database.CurrencyTableHelper
 import com.timbuchalka.currencyapp.receivers.CurrencyReceiver
 import com.timbuchalka.currencyapp.services.CurrencyService
+import com.timbuchalka.currencyapp.utils.AlarmUtils
 import com.timbuchalka.currencyapp.utils.LogUtils
+import com.timbuchalka.currencyapp.utils.NotificationUtils
+import com.timbuchalka.currencyapp.utils.SharedPreferencesUtils
 import com.timbuchalka.currencyapp.value_objects.Currency
 import java.sql.SQLException
 
@@ -20,6 +23,8 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
     private var baseCurrency = Constants.CURRENCY_CODES[30]
     private var targetCurrency = Constants.CURRENCY_CODES[19]
 
+    private var serviceRepetition = AlarmUtils.REPEAT.EVERY_MINUTE.ordinal
+
     private val currencyTableHelper: CurrencyTableHelper by lazy {
         val currencyDatabaseAdapter = CurrencyDatabaseAdapter(this)
         CurrencyTableHelper(currencyDatabaseAdapter)
@@ -29,6 +34,7 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        resetDownloads()
         retrieveCurrencyExchangeRate()
     }
 
@@ -47,7 +53,12 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
         bundle.putString(Constants.CURRENCY_NAME, targetCurrency)
         bundle.putString(Constants.CURRENCY_BASE, baseCurrency)
         intent.putExtra(Constants.BUNDLE, bundle)
-        startService(intent)
+//        startService(intent)
+        AlarmUtils.startService(this, intent, AlarmUtils.REPEAT.values()[serviceRepetition])
+    }
+
+    private fun resetDownloads() {
+        SharedPreferencesUtils.updateNumDownloads(this, 0)
     }
 
     override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
@@ -72,7 +83,19 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
 
                         val dbMessage = "Currency (DB) ${currency.base} - ${currency.name}: ${currency.rate}"
                         LogUtils.log(TAG, dbMessage)
+                        NotificationUtils.showNotificationMessage(applicationContext,
+                                "Currency Exchange Rate", dbMessage)
 
+                        if (NotificationUtils.isAppInBackground(this)) {
+                            var numDownLoads = SharedPreferencesUtils.getNumDownloads(applicationContext)
+                            SharedPreferencesUtils.updateNumDownloads(applicationContext, ++numDownLoads)
+
+                            if (numDownLoads == Constants.MAX_DOWNLOADS) {
+                                LogUtils.log(TAG, "Max downloads for the background processing has been reached.")
+                                serviceRepetition = AlarmUtils.REPEAT.EVERY_DAY.ordinal
+                                retrieveCurrencyExchangeRate()
+                            }
+                        }
                     }
                 }
 

@@ -56,7 +56,7 @@ object NotificationUtils {
         }
     }
 
-    private fun isAppInBackground(ctx: Context): Boolean {
+    fun isAppInBackground(ctx: Context): Boolean {
         var isInBackground = true
         val activityManager = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT_WATCH) {

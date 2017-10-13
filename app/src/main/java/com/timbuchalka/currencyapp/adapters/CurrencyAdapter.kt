@@ -17,8 +17,8 @@ class CurrencyAdapter(private val ctx: Context) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         var viewHolder = ViewHolder()
-        var view : View
-        if (convertView == null){
+        var view: View
+        if (convertView == null) {
             val inflater = ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             view = inflater.inflate(R.layout.currency_item, null)
             viewHolder.textView = view.findViewById(R.id.currenty_text)
@@ -26,8 +26,10 @@ class CurrencyAdapter(private val ctx: Context) : BaseAdapter() {
         } else {
             view = convertView
             viewHolder = convertView.tag as ViewHolder
-            viewHolder.textView?.text = Constants.CURRENCY_NAMES[position] + "(" + Constants.CURRENCY_CODES[position] + ")"
         }
+
+        viewHolder.textView?.text = Constants.CURRENCY_NAMES[position] + "(" + Constants.CURRENCY_CODES[position] + ")"
+
         return view
     }
 

@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
 import com.timbuchalka.currencyapp.adapters.CurrencyAdapter
 import com.timbuchalka.currencyapp.database.CurrencyDatabaseAdapter
@@ -42,7 +44,7 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
 
         // init toolbar
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowCustomEnabled(false)
+        supportActionBar?.setDisplayShowHomeEnabled(false)
 
         initSpinner()
         initCurrencyList()
@@ -112,11 +114,19 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
             isSaveEnabled = true
             setSelection(SharedPreferencesUtils.getServiceRepetition(this@MainActivity), false)
             post {
-                setOnItemClickListener { parent, view, position, id ->
-                    SharedPreferencesUtils.updateServiceRepetition(this@MainActivity, position)
-                    serviceRepetition = position
-                    if (position >= AlarmUtils.REPEAT.values().size) AlarmUtils.stopService()
-                    else retrieveCurrencyExchangeRate()
+                time_frequency.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                        SharedPreferencesUtils.updateServiceRepetition(this@MainActivity, position)
+                        serviceRepetition = position
+                        if (position >= AlarmUtils.REPEAT.values().size) {
+                            AlarmUtils.stopService()
+                        } else {
+                            retrieveCurrencyExchangeRate()
+                        }
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>) {
+                    }
                 }
             }
         }
@@ -222,5 +232,10 @@ class MainActivity : AppCompatActivity(), CurrencyReceiver.Receiver {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
     }
 }
